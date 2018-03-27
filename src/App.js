@@ -75,7 +75,10 @@ class Filter extends Component {
     return (
       <div style={defaultStyle}>
         <img />
-        <input type="text" />
+        <input
+          type="text"
+          onKeyUp={event => this.props.onTextChange(event.target.value)}
+        />
       </div>
     );
   }
@@ -83,16 +86,12 @@ class Filter extends Component {
 
 class Playlist extends Component {
   render() {
-    let playlist = this.props.playlist
+    let playlist = this.props.playlist;
     return (
       <div style={{...defaultStyle, display: 'inline-block', width: '25%'}}>
         <img />
         <h3>{playlist.name}</h3>
-        <ul>
-          {playlist.songs.map(song =>
-            <li>{song.name}</li>
-          )}
-        </ul>
+        <ul>{playlist.songs.map(song => <li>{song.name}</li>)}</ul>
       </div>
     );
   }
@@ -101,7 +100,10 @@ class Playlist extends Component {
 class App extends Component {
   constructor() {
     super();
-    this.state = {serverData: {}};
+    this.state = {
+      serverData: {},
+      filterString: '',
+    };
   }
   componentDidMount() {
     setTimeout(() => {
@@ -109,7 +111,6 @@ class App extends Component {
     }, 1000);
   }
   render() {
-
     // let playlistElements = []
     // if (this.state.serverData.user) {
     //   for (let i=0; i < this.state.serverData.user.playlists.length; i++) {
@@ -126,10 +127,17 @@ class App extends Component {
             </h1>
             <PlaylistCounter playlists={this.state.serverData.user.playlists} />
             <HoursCounter playlists={this.state.serverData.user.playlists} />
-            <Filter />
+            <Filter
+              onTextChange={text => {
+                this.setState({filterString: text});
+              }}
+            />
             {/* {playlistElements} */}
-            {this.state.serverData.user.playlists.map(playlist => 
-            <Playlist playlist={playlist} />)}
+            {this.state.serverData.user.playlists
+              .filter(playlist =>
+                playlist.name.toLowerCase().includes(this.state.filterString)
+              )
+              .map(playlist => <Playlist playlist={playlist} />)}
           </div>
         ) : (
           <h1 style={defaultStyle}>Loading...</h1>
